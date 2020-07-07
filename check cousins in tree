@@ -1,0 +1,100 @@
+#include<iostream>
+#include<vector>
+#include<stack>
+using namespace std;
+class Node
+{
+	public:
+	int key;
+	Node *left;
+	Node *right;
+	
+	Node(int key)
+	{
+		this->key=key;
+		this->left=nullptr;
+		this->right=nullptr;	
+	}	
+};
+int SizeOfTree(Node *root)
+{
+	if(root==nullptr)
+	return 0;
+	
+	return 1+SizeOfTree(root->left)+SizeOfTree(root->right);
+}
+
+bool IsComplete(Node *root,int i,int n)
+{
+	if(root==nullptr)
+	return true;
+	
+	if((root->left && 2*i+1>=n) || !IsComplete(root->left,2*i+1,n))
+	return false;
+	
+	if((root->right && 2*i+2>=n) || !IsComplete(root->right,2*i+2,n))
+	return false;
+	
+	return true;
+}
+struct NodeInfo
+{
+	int key;
+	int level;
+	Node *parent;
+};
+void InOrder(Node *root,Node *parent,int level,NodeInfo &x,NodeInfo &y)
+{
+	if(root==nullptr)
+	return;
+	
+	InOrder(root->left,root,level+1,x,y);
+	
+	if(root->key==x.key)
+	{
+		x.level=level;
+		x.parent=parent;
+	}
+	
+	if(root->key==y.key)
+	{
+		y.level=level;
+		y.parent=parent;
+	}
+	InOrder(root->right,root,level+1,x,y);
+}
+bool CheckCousin(Node *root,int elem1,int elem2)
+{
+	if(root==nullptr)
+	return false;
+	
+	int level=1;
+	Node *parent=nullptr;
+	
+	NodeInfo x={elem1,level,parent};
+	NodeInfo y={elem2,level,parent};
+	
+	InOrder(root,nullptr,1,x,y);
+	
+	if(x.level!=y.level || x.parent==y.parent)
+	return false;
+	
+	return true;
+	
+}
+int main()
+{
+	Node *root1=nullptr;
+	root1=new Node(1);
+	root1->left=new Node(2);
+	root1->right=new Node(3);
+	root1->left->left=new Node(4);
+	root1->left->right=new Node(5);
+	root1->right->left=new Node(6);
+	root1->right->right=new Node(7);
+	//root1->right->right->left=new Node(125);
+	if(CheckCousin(root1,3,6))
+	cout<<"Yes";
+	else
+	cout<<"No";
+}
